@@ -1,5 +1,9 @@
 # Kubernetes demo
 
+## useful resources:
+* [One-page API Reference for Kubernetes v1.23](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#deployment-v1-apps)
+* [kubectl-commands](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)
+
 ## Steps to reproduce
 
 ### 02 - docker image
@@ -76,3 +80,61 @@ demo-service   LoadBalancer   10.99.200.65   127.0.0.1     8080:30081/TCP   4m4s
 Use GET on our endpoint in a browser: `http://127.0.0.1:8080/`
 
 Cleanup: `kubectl delete service demo-service` and `kubectl delete pod demo-app`
+
+### 05 - create k8s Deployment in declarative way
+
+While in k8s directory use: `kubectl apply -f 05-deployment.yaml`
+
+In output of `kubectl get pods` we've got 2 instances as specified in deployment.yaml:
+
+```shell
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-759999d8db-fqfm6   1/1     Running   0          4s
+demo-app-deployment-759999d8db-sdkgn   1/1     Running   0          4s
+```
+
+Create a k8s Service in declarative way: `kubectl apply -f 05-service.yaml`
+
+Use GET on our endpoint in a browser: `http://127.0.0.1:9376/`
+
+#### Check how declarative way keeps the desired state:
+
+Delete imperatively one pod: `kubectl delete pod <pod name>`
+
+After `kubectl get pods` the new pods is automatically created:
+
+```shell
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-86bc64cf6b-d7wbh   1/1     Running   0          6s
+demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          11m
+```
+
+#### Scale the deployment up/down:
+
+Change `replicas: 2` to `replicas: 3` in 05-deployment.yaml, and apply it again.
+
+```shell
+polpc08778:k8s piotr.majorczyk$ kubectl apply -f 05-deployment.yaml
+deployment.apps/demo-app-deployment configured
+polpc08778:k8s piotr.majorczyk$ kubectl get pods
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-86bc64cf6b-d7wbh   1/1     Running   0          3m27s
+demo-app-deployment-86bc64cf6b-kw2pk   1/1     Running   0          6s
+demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          15m
+```
+
+Now change replicas count to 1 and apply changes again:
+```shell
+polpc08778:k8s piotr.majorczyk$ kubectl get pods
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-86bc64cf6b-d7wbh   1/1     Running   0          3m27s
+demo-app-deployment-86bc64cf6b-kw2pk   1/1     Running   0          6s
+demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          15m
+polpc08778:k8s piotr.majorczyk$ kubectl apply -f 05-deployment.yaml
+deployment.apps/demo-app-deployment configured
+polpc08778:k8s piotr.majorczyk$ kubectl get pods
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          16m
+```
+
+Cleanup: `kubectl delete service demo-app-service` and `kubectl delete deployment demo-app-deployment`
