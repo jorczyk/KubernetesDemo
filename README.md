@@ -95,13 +95,15 @@ demo-app-deployment-759999d8db-sdkgn   1/1     Running   0          4s
 
 Create a k8s Service in declarative way: `kubectl apply -f 05-service.yaml`
 
+Get all k8s resources: `kubectl get all`
+
 Use GET on our endpoint in a browser: `http://127.0.0.1:9376/`
 
 #### Check how declarative way keeps the desired state:
 
 Delete imperatively one pod: `kubectl delete pod <pod name>`
 
-After `kubectl get pods` the new pods is automatically created:
+After `kubectl get pods` you can see that the new pods are automatically created:
 
 ```shell
 NAME                                   READY   STATUS    RESTARTS   AGE
@@ -136,5 +138,11 @@ polpc08778:k8s piotr.majorczyk$ kubectl get pods
 NAME                                   READY   STATUS    RESTARTS   AGE
 demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          16m
 ```
+
+#### Check the load balancing feature
+
+Now scale back the deployment to 3 instances.
+Then run multiple time the `05.getPodName.sh` script and observe that the name of returned host are actually different and our requests were load balanced between multiple pods.
+Ypu can also use `<EXTERNAL-IP>:9376/host` endpoint (remember about caching mechanism!).
 
 Cleanup: `kubectl delete service demo-app-service` and `kubectl delete deployment demo-app-deployment`
