@@ -47,6 +47,8 @@ Run image again with image-pull-policy: `kubectl run demo-app --image=k8s-demo-0
 
 Get logs from inside running pod: `kubectl logs demo-app`
 
+Cleanup: `kubectl delete pod demo-app`
+
 >**IfNotPresent**
 the image is pulled only if it is not already present locally.
 
@@ -72,3 +74,5 @@ demo-service   LoadBalancer   10.99.200.65   127.0.0.1     8080:30081/TCP   4m4s
 ```
 
 Use GET on our endpoint in a browser: `http://127.0.0.1:8080/`
+
+Cleanup: `kubectl delete service demo-service` and `kubectl delete pod demo-app`
