@@ -55,3 +55,20 @@ every time the kubelet launches a container, the kubelet queries the container i
 
 >**Never**
 the kubelet does not try fetching the image. If the image is somehow already present locally, the kubelet attempts to start the container; otherwise, startup fails. See pre-pulled images for more details.
+
+### 04 - expose service to localhost
+
+Expose demo-app to localhost: `kubectl expose pod demo-app --port=8080 --type=LoadBalancer --name=demo-service`
+
+Watch if service is getting the EXTERNAL-IP: `kubectl get service -w`
+
+Open minikube tunnel (in new terminal window) to enable k8s LoadBalancer: `minikube tunnel`
+
+Example of kubectl get service output:
+
+```shell
+NAME           TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+demo-service   LoadBalancer   10.99.200.65   127.0.0.1     8080:30081/TCP   4m4s
+```
+
+Use GET on our endpoint in a browser: `http://127.0.0.1:8080/`
