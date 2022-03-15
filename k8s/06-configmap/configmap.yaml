@@ -1,0 +1,8 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: simple-configmap
+data:
+  # Configuration values can be set as key-value properties
+  single.value: test value
+  sense.of.life: "42"

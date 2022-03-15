@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-deployment
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      volumes: # List of volumes that can be mounted by containers belonging to the pod
+        - name: key-value-volume #must match the name specified in the volume mount
+          configMap: # represents a configMap that should populate this volume
+            name: simple-configmap #must match the name specified in the ConfigMap's YAML
+        - name: file-volume #must match the name specified in the volume mount
+          configMap: # represents a configMap that should populate this volume
+            name: file-configmap #must match the name specified in the ConfigMap's YAML
+      containers:
+        - name: hello-world
+          env: #load environmental variable in that container
+            - name: sense.of.life #key of variable
+              valueFrom:
+                configMapKeyRef: # from configmap
+                  name: simple-configmap #with name
+                  key: sense.of.life #key from configmap
+          image: k8s-demo-06-5:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          volumeMounts: # Pod volumes to mount into the container's filesystem. Cannot be updated.
+            - name: file-volume # must match the name from the volumes section of this pod
+              mountPath: "/config" #Path within the container at which the volume should be mounted

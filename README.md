@@ -116,7 +116,7 @@ demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          11m
 Change `replicas: 2` to `replicas: 3` in 05-deployment.yaml, and apply it again.
 
 ```shell
-polpc08778:k8s piotr.majorczyk$ kubectl apply -f 05-deployment.yaml
+polpc08778:k8s piotr.majorczyk$ kubectl apply -f deployment.yaml
 deployment.apps/demo-app-deployment configured
 polpc08778:k8s piotr.majorczyk$ kubectl get pods
 NAME                                   READY   STATUS    RESTARTS   AGE
@@ -132,7 +132,7 @@ NAME                                   READY   STATUS    RESTARTS   AGE
 demo-app-deployment-86bc64cf6b-d7wbh   1/1     Running   0          3m27s
 demo-app-deployment-86bc64cf6b-kw2pk   1/1     Running   0          6s
 demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          15m
-polpc08778:k8s piotr.majorczyk$ kubectl apply -f 05-deployment.yaml
+polpc08778:k8s piotr.majorczyk$ kubectl apply -f deployment.yaml
 deployment.apps/demo-app-deployment configured
 polpc08778:k8s piotr.majorczyk$ kubectl get pods
 NAME                                   READY   STATUS    RESTARTS   AGE
@@ -142,7 +142,21 @@ demo-app-deployment-86bc64cf6b-w4brn   1/1     Running   0          16m
 #### Check the load balancing feature
 
 Now scale back the deployment to 3 instances.
+
 Then run multiple time the `05.getPodName.sh` script and observe that the name of returned host are actually different and our requests were load balanced between multiple pods.
-Ypu can also use `<EXTERNAL-IP>:9376/host` endpoint (remember about caching mechanism!).
+
+You can also use `<EXTERNAL-IP>:9376/host` endpoint (remember about caching mechanism!).
 
 Cleanup: `kubectl delete service demo-app-service` and `kubectl delete deployment demo-app-deployment`
+
+### 06 - Using configmpa
+
+Apply all the files from `06-configmap`
+
+Get into container: `kubectl exec --stdin --tty <pod name> -- /bin/bash`
+
+Check that file-configuration was loaded: `ls config`
+
+Check that simple value was loaded: `printenv <value kye>`
+
+Check out the output of endpoint: `<EXTERNAL-IP>:9376/props`
