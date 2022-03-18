@@ -208,3 +208,47 @@ Create configmap from single file: `kubectl create configmap file-cm-example --f
 Create configmap from literals: `kubectl create configmap literals-cm-example --from-literal=first.key=value1 --from-literal=second.key=value2`
 
 Save created Configmap to yaml: `kubectl get configmap literals-cm-example -o yaml > generated-configmap.yaml`
+
+### 07 - Using Namespaces
+
+Get all namespaces with labels: `kubectl get namespaces --show-labels`
+
+```shell
+polpc08778:06-configmap piotr.majorczyk$ kubectl get namespaces
+NAME                   STATUS   AGE
+default                Active   7d18h
+kube-node-lease        Active   7d18h
+kube-public            Active   7d18h
+kube-system            Active   7d18h
+kubernetes-dashboard   Active   7d18h
+```
+>Note: Namespaces starting with kube should not be used for user workload
+
+>When you create a Service, it creates a corresponding DNS entry. This entry is of the form <service-name>.<namespace-name>.svc.cluster.local, which means that if a container only uses <service-name>, it will resolve to the service which is local to a namespace. This is useful for using the same configuration across multiple namespaces such as Development, Staging and Production. If you want to reach across namespaces, you need to use the fully qualified domain name (FQDN).
+
+Find out which objects are in namespaces: `kubectl api-resources --namespaced=true`
+
+#### Create Namespace
+Create namespace imperatively: `kubectl create namespace <namespace name>`
+
+OR
+
+Create namespace declaratively: `kubectl apply -f our-namespace.yaml`
+
+#### Create objects in Namespaces
+
+To create an object in concrete namespace use -n flag, eg.: `kubectl apply -f 05-deployment.yaml -n <namespace name>`
+
+>When no namespace is declared then the `default` namespace is used.
+
+Alternatively we can specify the namespace inside the object definition itself. Eg.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-deployment
+  namespace: vivaldi
+  labels:
+    app: demo-app
+```

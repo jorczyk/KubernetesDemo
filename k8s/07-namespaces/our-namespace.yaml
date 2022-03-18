@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vivaldi
+  labels:
+    one: value1
+    two: value2
