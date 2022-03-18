@@ -149,7 +149,7 @@ You can also use `<EXTERNAL-IP>:9376/host` endpoint (remember about caching mech
 
 Cleanup: `kubectl delete service demo-app-service` and `kubectl delete deployment demo-app-deployment`
 
-### 06 - Using configmpa
+### 06 - Using Configmap
 
 Apply all the files from `06-configmap`
 
@@ -160,3 +160,51 @@ Check that file-configuration was loaded: `ls config`
 Check that simple value was loaded: `printenv <value kye>`
 
 Check out the output of endpoint: `<EXTERNAL-IP>:9376/props`
+
+#### Creating Configmap from directory/file/literals
+
+Create configmap from directory: `kubectl create configmap dir-cm-example --from-file=./cm-files/`
+
+>Note: When kubectl creates a ConfigMap from inputs that are not ASCII or UTF-8, the tool puts these into the binaryData field of the ConfigMap, and not in data
+
+Run `kubectl describe configmap dir-cm-example`
+
+```shell
+Name:         dir-cm-example
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+date.properties:
+----
+day=20
+month=04
+year=2022
+dummy.properties:
+----
+lorem=ipsum
+foo=bar
+geo.properties:
+----
+city=Poznan
+country=Poland
+
+BinaryData
+====
+.DS_Store: 6148 bytes
+binary.zip: 242 bytes
+
+Events:  <none>
+```
+
+Note that binary file(zip) data is put inside `BinaryData` section
+
+---
+
+Create configmap from single file: `kubectl create configmap file-cm-example --from-file=<file path>`
+
+Create configmap from literals: `kubectl create configmap literals-cm-example --from-literal=first.key=value1 --from-literal=second.key=value2`
+
+Save created Configmap to yaml: `kubectl get configmap literals-cm-example -o yaml > generated-configmap.yaml`

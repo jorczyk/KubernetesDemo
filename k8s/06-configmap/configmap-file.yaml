@@ -6,4 +6,4 @@ data:
   # Or set as complete file contents
   hehe.properties: |
     meaning.of.life=monty-python
-    meaning.of.life2=monty-python
+    something.completely.different=monty-python
