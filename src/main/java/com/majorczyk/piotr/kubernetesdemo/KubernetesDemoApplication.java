@@ -1,9 +1,16 @@
 package com.majorczyk.piotr.kubernetesdemo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileInputStream;
@@ -13,10 +20,24 @@ import java.util.Properties;
 
 @SpringBootApplication
 @RestController
+@EnableScheduling
 public class KubernetesDemoApplication {
+
+	Logger logger = LoggerFactory.getLogger(KubernetesDemoApplication.class);
 
 	@Value("${sense.of.life:0}")
 	private Integer senseOfLife;
+
+	private boolean isHealthy = true;
+	private boolean isReady = false;
+	private int unhealthyCounter = 0;
+	private int notReadyCounter = 0;
+
+	@Scheduled(initialDelay = 10000, fixedDelay = Integer.MAX_VALUE)
+	public void setReadinessAfterTime() {
+		isReady = true;
+		System.out.println("Service is ready to service ");
+	}
 
 	@GetMapping("/")
 	public String hello() {
@@ -31,9 +52,36 @@ public class KubernetesDemoApplication {
 
 	@GetMapping("/props")
 	public String props() throws IOException {
-		System.out.println("Getting value of life: " + senseOfLife.toString());
-		System.out.println("Getting meaning of life: " + getPropertiesFile("hehe.properties"));
+		logger.info("Getting value of life: " + senseOfLife.toString());
+		logger.info("Getting meaning of life: " + getPropertiesFile("hehe.properties"));
 		return "Sense of life: " + senseOfLife.toString() + "\nLoaded properties file: " + getPropertiesFile("hehe.properties");
+	}
+
+	@GetMapping(value = "/health", produces= MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> health() {
+		if(!isHealthy) {
+			logger.warn("Service unhealthy! Try: " + ++unhealthyCounter);
+			return ResponseEntity.internalServerError().build();
+		}
+		unhealthyCounter=0;
+		return ResponseEntity.ok("Healthy!");
+	}
+
+	@GetMapping(value = "/readiness", produces= MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> readiness() {
+		if(!isReady) {
+			logger.warn("Service not ready! Try: " + ++notReadyCounter);
+			return ResponseEntity.internalServerError().build();
+		}
+		notReadyCounter = 0;
+		return ResponseEntity.ok("Ready!");
+	}
+
+	@PostMapping("/setUnhealthy")
+	public String setUnhealthy() {
+		isHealthy = false;
+		System.out.println("Health set to failing");
+		return "Service was set to unhealthy";
 	}
 
 	private Properties getPropertiesFile(String filename) throws IOException {

@@ -12,7 +12,6 @@ Build executable jar: `./gradlew build`
 
 Build docker image: `docker build -t k8s-demo-02 .` 
 
-
 ### 03 - run image on local cluster imperatively
 
 #### Run minikube cluster
@@ -149,6 +148,10 @@ You can also use `<EXTERNAL-IP>:9376/host` endpoint (remember about caching mech
 
 Cleanup: `kubectl delete service demo-app-service` and `kubectl delete deployment demo-app-deployment`
 
+#### Clean all resources
+
+Delete all objects: `kubectl delete daemonsets,replicasets,services,deployments,pods,rc,ingress --all --all-namespaces`
+
 ### 06 - Using Configmap
 
 Apply all the files from `06-configmap`
@@ -251,4 +254,71 @@ metadata:
   namespace: vivaldi
   labels:
     app: demo-app
+```
+
+### 08 - Using liveness and readiness probes
+
+#### Readiness
+
+After creating deployment run get pods with watch flag on: `kubectl get pods -w`
+
+At first we can see that the created pod is not ready:
+
+```shell
+polpc08778:08-liveness&readiness piotr.majorczyk$ kubectl get pods -w
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-55d84fc556-wv48p   0/1     Running   0          4s
+```
+
+But 20 seconds after pod startup it status is changed to ready:
+
+```shell
+polpc08778:08-liveness&readiness piotr.majorczyk$ kubectl get pods -w
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-55d84fc556-wv48p   0/1     Running   0          4s
+demo-app-deployment-55d84fc556-wv48p   1/1     Running   0          20s
+```
+
+Those 20 seconds comes from 2 facts:
+- in out implementation we set the `/readiness` endpoint to return true 10 seconds after startup
+- the period of readiness probe is set to default 10 seconds. So if we get false after initial 10 seconds then we will be able to get another result only after next 10 seconds.
+
+#### Liveness (aka health check)
+
+Check the pod: `kubectl get pods`
+
+```shell
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-547f6c6d88-hsjj6   1/1     Running   0          2m50s
+```
+
+Run the `08.setUnhealthy.sh` script to change the HTTP code returned by `/health` endpoint: `curl --request POST --url 'localhost:9376/setUnhealthy'`
+
+> Note: K8s treats 2xx and 3xx codes as "healthy" and everything else as "unhealthy"
+
+Check how k8s behaves: `kubectl get pods -w`
+
+```shell
+polpc08778:08-liveness&readiness piotr.majorczyk$ kubectl get pods -w
+NAME                                   READY   STATUS    RESTARTS   AGE
+demo-app-deployment-547f6c6d88-hsjj6   1/1     Running   0          7m21s
+demo-app-deployment-547f6c6d88-hsjj6   0/1     Running   1 (1s ago)   7m26s
+demo-app-deployment-547f6c6d88-hsjj6   1/1     Running   1 (20s ago)   7m45s
+```
+
+As we can see the k8s liveness probe fails and k8s tries to restart the unhealthy pod. After the restart the variable returned by `/health` endpoint is again true and service is again healthy.
+
+Check the logs of previous (restarted pod): `kubectl logs demo-app-deployment-b96d94779-wwn97 --previous`
+
+and we can see in logs:
+```shell
+Health set to failing
+2022-03-21 23:39:51.299  WARN 1 --- [nio-8080-exec-5] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 1
+2022-03-21 23:39:56.299  WARN 1 --- [nio-8080-exec-6] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 2
+2022-03-21 23:40:01.297  WARN 1 --- [nio-8080-exec-8] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 3
+2022-03-21 23:40:06.298  WARN 1 --- [nio-8080-exec-9] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 4
+2022-03-21 23:40:11.281  WARN 1 --- [nio-8080-exec-1] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 5
+2022-03-21 23:40:16.281  WARN 1 --- [nio-8080-exec-2] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 6
+2022-03-21 23:40:21.280  WARN 1 --- [nio-8080-exec-3] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 7
+2022-03-21 23:40:26.280  WARN 1 --- [nio-8080-exec-5] c.m.p.k.KubernetesDemoApplication        : Service unhealthy! Try: 8
 ```
