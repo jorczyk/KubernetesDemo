@@ -16,7 +16,7 @@ spec:
     spec:
       containers: #List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
         - name: hello-world
-          image: k8s-demo-05:latest
+          image: k8s-demo-05:0.0.1 #You should avoid using the :latest tag when deploying containers in production as it is harder to track which version of the image is running and more difficult to roll back properly.
           imagePullPolicy: Never
           ports: #List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed.
             - containerPort: 8080 # must be the port that we are actually exposing from application
