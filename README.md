@@ -3,6 +3,7 @@
 ## useful resources:
 * [One-page API Reference for Kubernetes v1.23](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#deployment-v1-apps)
 * [kubectl-commands](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)
+* [kubectl-cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
 ## Steps to reproduce
 
