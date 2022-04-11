@@ -20,3 +20,8 @@ spec:
           imagePullPolicy: Never
           ports: #List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed.
             - containerPort: 8080 # must be the port that we are actually exposing from application
+  strategy:
+    type: RollingUpdate #Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate. `"Recreate"` Kill all existing pods before creating new ones. - `"RollingUpdate"` Replace the old ReplicaSets by new one using rolling update i.e gradually scale down the old ReplicaSets and scale up the new one.
+    rollingUpdate:
+      maxSurge: 2
+#      maxUnavailable:
