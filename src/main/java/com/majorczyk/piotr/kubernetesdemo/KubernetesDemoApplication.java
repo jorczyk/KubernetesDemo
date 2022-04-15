@@ -53,8 +53,8 @@ public class KubernetesDemoApplication {
 	@GetMapping("/props")
 	public String props() throws IOException {
 		logger.info("Getting value of life: " + senseOfLife.toString());
-		logger.info("Getting meaning of life: " + getPropertiesFile("hehe.properties"));
-		return "Sense of life: " + senseOfLife.toString() + "\nLoaded properties file: " + getPropertiesFile("hehe.properties");
+		logger.info("Getting meaning of life: " + getPropertiesFile("films.properties"));
+		return "Sense of life: " + senseOfLife.toString() + "\nLoaded properties file: " + getPropertiesFile("films.properties");
 	}
 
 	@GetMapping(value = "/health", produces= MediaType.APPLICATION_JSON_VALUE)

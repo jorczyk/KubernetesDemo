@@ -23,5 +23,5 @@ spec:
   strategy:
     type: RollingUpdate #Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate. `"Recreate"` Kill all existing pods before creating new ones. - `"RollingUpdate"` Replace the old ReplicaSets by new one using rolling update i.e gradually scale down the old ReplicaSets and scale up the new one.
     rollingUpdate:
-      maxSurge: 2
+      maxSurge: 2 #Maximum number of additional pods created
 #      maxUnavailable:

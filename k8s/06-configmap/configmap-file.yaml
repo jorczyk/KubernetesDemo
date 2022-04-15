@@ -4,6 +4,6 @@ metadata:
   name: file-configmap
 data:
   # Or set as complete file contents
-  hehe.properties: |
+  films.properties: |
     meaning.of.life=monty-python
     something.completely.different=monty-python

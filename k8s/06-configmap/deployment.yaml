@@ -29,7 +29,7 @@ spec:
                 configMapKeyRef: # from configmap
                   name: simple-configmap #with name
                   key: sense.of.life #key from configmap
-          image: k8s-demo-06-5:latest
+          image: k8s-demo-06-6:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
