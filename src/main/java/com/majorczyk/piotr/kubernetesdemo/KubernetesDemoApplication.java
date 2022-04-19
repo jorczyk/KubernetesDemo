@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -36,7 +35,7 @@ public class KubernetesDemoApplication {
 	@Scheduled(initialDelay = 10000, fixedDelay = Integer.MAX_VALUE)
 	public void setReadinessAfterTime() {
 		isReady = true;
-		System.out.println("Service is ready to service ");
+		logger.info("Service is ready");
 	}
 
 	@GetMapping("/")
@@ -80,7 +79,7 @@ public class KubernetesDemoApplication {
 	@PostMapping("/setUnhealthy")
 	public String setUnhealthy() {
 		isHealthy = false;
-		System.out.println("Health set to failing");
+		logger.info("Health check set to failing");
 		return "Service was set to unhealthy";
 	}
 
