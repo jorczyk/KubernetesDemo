@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-deployment
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector: #Label selector for pods. Existing ReplicaSets whose pods are selected by this will be the ones affected by this deployment. It must match the pod template's labels.
+    matchLabels:
+      app: demo-app
+  template: #Template describes the pods that will be created.
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers: #List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
+        - name: hello-world
+          image: k8s-demo-08-4:latest
+          imagePullPolicy: Never
+          ports: #List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed.
+            - containerPort: 8080 # must be the port that we are actually exposing from application
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 8 #Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+#            successThreshold: 3
+            periodSeconds: 5 #How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 8080
+#            initialDelaySeconds: 1
+            periodSeconds: 10
